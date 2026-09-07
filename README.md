@@ -16,7 +16,7 @@ A simple Ubuntu kiosk for a family mini PC (GMKtec G10 and similar). Your child 
 # From your machine (private repo: sign in first — `gh auth login` or SSH keys)
 gh repo clone family-kiosk
 cd family-kiosk
-# Prefer Python 3.11–3.13 (Homebrew: python3.13). System 3.14 may lack wheels.
+# Prefer 3.11–3.13. On Mac Homebrew, `python3` may be 3.14 — use python3.13 if unsure.
 python3.13 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -34,11 +34,24 @@ Then open:
 pytest -q
 ```
 
+### Install troubleshooting (Mac)
+
+If `pip install` fails with **Failed building wheel for pydantic-core**, your venv is almost certainly on **Python 3.14** while an older pydantic pin tried to compile from source. Recreate the venv with 3.13 (recommended), or pull latest requirements (pydantic 2.13+ has 3.14 wheels):
+
+```bash
+brew install python@3.13
+rm -rf .venv
+python3.13 -m venv .venv
+source .venv/bin/activate
+python -V   # should show 3.13.x
+pip install -r requirements.txt
+```
+
 ## Ubuntu 24.04 on the G10
 
 1. Install Ubuntu Desktop (wipe Windows). Ryzen 5 3500U / Vega 8 works well. If 2.5GbE is flaky (Realtek RTL8125), use Wi‑Fi.
-2. Create your **parent** account during install (full desktop + sudo).
-3. On the parent account, clone this repo and run the installer:
+2. Create your **parent** account during install (full desktop + sudo), and a separate Ubuntu user for your child (Settings → Users).
+3. On the parent account, clone this repo and run the installer (it will ask which existing user is the child; or set `KID_USER=username` to skip the prompt):
 
 ```bash
 sudo apt update && sudo apt install -y git gh
@@ -46,11 +59,12 @@ gh auth login    # required once if the repo is private
 gh repo clone family-kiosk
 cd family-kiosk
 sudo bash deploy/install-ubuntu.sh
+# optional non-interactive: sudo KID_USER=hisname bash deploy/install-ubuntu.sh
 sudo nano /etc/family-kiosk/config.yaml   # change parent_pin, hours, homework sites
 sudo systemctl restart familyd
 ```
 
-4. Log out and log in as the **kid** user — the kiosk picker should fill the screen.
+4. Log out and log in as the **child** user you selected — the kiosk picker should fill the screen.
 5. On your iPhone (same Wi‑Fi), bookmark **http://family-pc.local:8787/parent**.
 6. Verify SafeSearch policies: on the kid session open `chrome://policy`, and set up [Family Link](https://families.google.com/familylink) (or school admin controls) for his Google account — details in [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md).
 

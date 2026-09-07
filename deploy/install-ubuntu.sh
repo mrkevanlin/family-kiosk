@@ -4,13 +4,91 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALL_DIR="${INSTALL_DIR:-/opt/family-kiosk}"
-KID_USER="${KID_USER:-kid}"
-PARENT_USER="${PARENT_USER:-$USER}"
+KID_USER="${KID_USER:-}"
+PARENT_USER="${PARENT_USER:-${SUDO_USER:-$USER}}"
 
 if [[ "$(id -u)" -ne 0 ]]; then
   echo "Re-running with sudo…"
   exec sudo INSTALL_DIR="$INSTALL_DIR" KID_USER="$KID_USER" PARENT_USER="$PARENT_USER" bash "$0" "$@"
 fi
+
+# If invoked as `sudo bash …`, prefer the real login user as parent.
+if [[ "$PARENT_USER" == "root" && -n "${SUDO_USER:-}" ]]; then
+  PARENT_USER="$SUDO_USER"
+fi
+
+list_login_users() {
+  getent passwd | awk -F: '
+    $3 >= 1000 && $3 < 65534 && $7 !~ /(nologin|false)/ { print $1 }
+  '
+}
+
+choose_kid_user() {
+  local users=()
+  local user
+  while IFS= read -r user; do
+    [[ -n "$user" ]] || continue
+    # Parent account should stay a normal desktop — do not kiosk it.
+    if [[ "$user" == "$PARENT_USER" ]]; then
+      continue
+    fi
+    users+=("$user")
+  done < <(list_login_users)
+
+  if [[ ${#users[@]} -eq 0 ]]; then
+    echo "No other login users found besides '$PARENT_USER'." >&2
+    echo "Create your child's Ubuntu account first (Settings → Users), then re-run." >&2
+    exit 1
+  fi
+
+  echo
+  echo "Which existing account should be the child (kiosk) account?"
+  echo "This account will boot into the Family Kiosk picker instead of a normal desktop."
+  local i=1
+  for user in "${users[@]}"; do
+    echo "  $i) $user"
+    i=$((i + 1))
+  done
+  echo
+
+  local choice
+  while true; do
+    read -r -p "Enter number (1-${#users[@]}): " choice
+    if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#users[@]} )); then
+      KID_USER="${users[$((choice - 1))]}"
+      break
+    fi
+    echo "Invalid choice. Pick a number between 1 and ${#users[@]}."
+  done
+}
+
+echo "==> Selecting child account"
+if [[ -n "$KID_USER" ]]; then
+  if ! id "$KID_USER" &>/dev/null; then
+    echo "KID_USER='$KID_USER' does not exist. Unset it to choose from a list." >&2
+    exit 1
+  fi
+  if [[ "$KID_USER" == "$PARENT_USER" ]]; then
+    echo "Child account cannot be the same as the parent account ('$PARENT_USER')." >&2
+    exit 1
+  fi
+  if ! list_login_users | grep -qx "$KID_USER"; then
+    echo "KID_USER='$KID_USER' is not a normal login account (UID >= 1000)." >&2
+    exit 1
+  fi
+  echo "Using child account from environment: $KID_USER"
+else
+  choose_kid_user
+fi
+
+KID_HOME="$(getent passwd "$KID_USER" | cut -d: -f6)"
+if [[ -z "$KID_HOME" || ! -d "$KID_HOME" ]]; then
+  echo "Home directory for '$KID_USER' not found." >&2
+  exit 1
+fi
+
+echo "Child (kiosk) account: $KID_USER ($KID_HOME)"
+echo "Parent account:        $PARENT_USER"
 
 echo "==> Installing system packages"
 apt-get update
@@ -27,13 +105,6 @@ if [[ -z "$CHROMIUM_BIN" ]]; then
   echo "WARNING: Chromium not found. Install chromium-browser before using the kiosk."
 fi
 
-echo "==> Creating kid user (if missing)"
-if ! id "$KID_USER" &>/dev/null; then
-  adduser --disabled-password --gecos "Kid" "$KID_USER"
-  echo "Set a password for $KID_USER:"
-  passwd "$KID_USER"
-fi
-
 groupadd -f familykiosk
 usermod -aG familykiosk "$KID_USER" || true
 usermod -aG familykiosk "$PARENT_USER" || true
@@ -44,6 +115,13 @@ rsync -a --delete \
   --exclude '.venv' --exclude 'data' --exclude '.git' --exclude '__pycache__' \
   "$ROOT/" "$INSTALL_DIR/"
 
+# Ubuntu 24.04 ships Python 3.12. Avoid bleeding-edge interpreters without wheels.
+PY_VER="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
+if ! python3 -c 'import sys; raise SystemExit(0 if (3,11) <= sys.version_info[:2] <= (3,13) else 1)'; then
+  echo "WARNING: python3 is $PY_VER; Family Kiosk expects Python 3.11–3.13." >&2
+  echo "On Ubuntu 24.04 this is normally 3.12. If pip fails on pydantic-core, install python3.12 and recreate the venv." >&2
+fi
+
 python3 -m venv "$INSTALL_DIR/.venv"
 "$INSTALL_DIR/.venv/bin/pip" install --upgrade pip
 "$INSTALL_DIR/.venv/bin/pip" install -r "$INSTALL_DIR/requirements.txt"
@@ -53,9 +131,10 @@ if [[ ! -f /etc/family-kiosk/config.yaml ]]; then
   # Production defaults
   sed -i 's/dry_run_network: true/dry_run_network: false/' /etc/family-kiosk/config.yaml
   sed -i 's|data_dir: "data"|data_dir: "/var/lib/family-kiosk"|' /etc/family-kiosk/config.yaml
-  sed -i "s/kid_username: kid/kid_username: $KID_USER/" /etc/family-kiosk/config.yaml
   echo "IMPORTANT: edit /etc/family-kiosk/config.yaml and change parent_pin"
 fi
+# Always point config at the chosen child account.
+sed -i "s/^kid_username:.*/kid_username: $KID_USER/" /etc/family-kiosk/config.yaml
 
 chown -R root:root "$INSTALL_DIR"
 chmod 750 /etc/family-kiosk
@@ -73,12 +152,12 @@ echo "==> Installing Chromium SafeSearch / SafeSites policies"
 bash "$INSTALL_DIR/deploy/install-chromium-policies.sh" || true
 
 echo "==> Installing kiosk launcher for $KID_USER"
-install -d -o "$KID_USER" -g "$KID_USER" "/home/$KID_USER/.local/bin"
+install -d -o "$KID_USER" -g "$KID_USER" "$KID_HOME/.local/bin"
 install -m 755 -o "$KID_USER" -g "$KID_USER" \
   "$INSTALL_DIR/deploy/gnome-kiosk-script" \
-  "/home/$KID_USER/.local/bin/gnome-kiosk-script"
+  "$KID_HOME/.local/bin/gnome-kiosk-script"
 
-# Force GNOME Kiosk session for the kid account
+# Force GNOME Kiosk session for the child account
 mkdir -p /var/lib/AccountsService/users
 cat > "/var/lib/AccountsService/users/$KID_USER" <<EOF
 [User]

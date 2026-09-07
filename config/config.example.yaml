@@ -7,7 +7,7 @@ timezone: America/New_York
 # Change this before first use.
 parent_pin: "1234"
 
-# Kid Linux username (used by nftables helper for UID-based filtering).
+# Kid Linux username (set by the installer to the child account you choose).
 kid_username: kid
 
 # Computer hours — kid can only use the machine during these windows.
