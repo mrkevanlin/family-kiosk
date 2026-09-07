@@ -29,6 +29,7 @@ class AppConfig(BaseModel):
     hours: dict[str, DayHours] = Field(default_factory=dict)
     always_allow_domains: list[str] = Field(default_factory=list)
     homework_url_allowlist: list[str] = Field(default_factory=list)
+    homework_start_url: str = "https://www.google.com/?safe=active&ssui=on"
     mblock_url: str = "https://ide.mblock.cc"
     session_durations: list[int] = Field(default_factory=lambda: [15, 30, 60])
     host: str = "0.0.0.0"

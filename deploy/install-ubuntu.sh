@@ -69,6 +69,9 @@ cp "$INSTALL_DIR/deploy/familyd.service" /etc/systemd/system/familyd.service
 systemctl daemon-reload
 systemctl enable --now familyd.service
 
+echo "==> Installing Chromium SafeSearch / SafeSites policies"
+bash "$INSTALL_DIR/deploy/install-chromium-policies.sh" || true
+
 echo "==> Installing kiosk launcher for $KID_USER"
 install -d -o "$KID_USER" -g "$KID_USER" "/home/$KID_USER/.local/bin"
 install -m 755 -o "$KID_USER" -g "$KID_USER" \
@@ -99,3 +102,5 @@ echo "  1. Edit /etc/family-kiosk/config.yaml (PIN, hours, homework allowlist)"
 echo "  2. Log in as $KID_USER — kiosk picker should open"
 echo "  3. On your iPhone (home Wi-Fi): http://family-pc.local:8787/parent"
 echo "  4. Parent account ($PARENT_USER) keeps a normal Ubuntu desktop"
+echo "  5. Verify chrome://policy shows ForceGoogleSafeSearch (see deploy/GOOGLE-SAFE.md)"
+echo "  6. Turn on Family Link / Workspace SafeSearch for his Google account too"

@@ -4,9 +4,10 @@ A simple Ubuntu kiosk for a family mini PC (GMKtec G10 and similar). Your child 
 
 ## What it does
 
-- **Kid login** opens a GNOME Kiosk session with one screen: Homework, mBlock, Ask for internet, and Web (only while internet is approved).
+- **Kid login** opens a GNOME Kiosk session with one screen: Homework (Google with SafeSearch locked), mBlock, Ask for internet, and Web (only while internet is approved).
 - **Computer hours** (default Eastern Time): weekdays 4–8 PM, weekends 9 AM–8 PM. Outside those hours the picker shows a closed state.
-- **Internet** is off by default. Homework and mBlock domains stay reachable. Everything else needs a timed approval (15 / 30 / 60 minutes).
+- **Internet** is off by default. Google / GSuite and mBlock domains stay reachable. Everything else needs a timed approval (15 / 30 / 60 minutes).
+- **Explicit content**: Chromium policies force Google SafeSearch (including Images), YouTube Restricted Mode, and SafeSites filtering. See [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md).
 - **Parent review** on your iPhone (home Wi‑Fi): open `http://family-pc.local:8787/parent`, enter your PIN, approve or deny. Push notifications can come later.
 
 ## Quick start (Mac / browser preview)
@@ -45,6 +46,7 @@ sudo systemctl restart familyd
 
 4. Log out and log in as the **kid** user — the kiosk picker should fill the screen.
 5. On your iPhone (same Wi‑Fi), bookmark **http://family-pc.local:8787/parent**.
+6. Verify SafeSearch policies: on the kid session open `chrome://policy`, and set up [Family Link](https://families.google.com/familylink) (or school admin controls) for his Google account — details in [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md).
 
 ### mBlock (Linux)
 
@@ -72,7 +74,8 @@ Kid tile **mBlock** opens https://ide.mblock.cc through the allowlist proxy.
 
 On the kid screen, **Parent** asks for the PIN and writes an exit flag. The kiosk wrapper ends the kid session so you can log into the parent desktop.
 
-See also [deploy/MBLOCK.md](deploy/MBLOCK.md) for robot USB setup.
+See also [deploy/MBLOCK.md](deploy/MBLOCK.md) for robot USB setup and
+[deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md) for SafeSearch / explicit-content lockdown.
 
 ## Network model
 
@@ -87,8 +90,8 @@ Edit `/etc/family-kiosk/config.yaml` (or `config/config.yaml` in dev):
 
 - `parent_pin` — dashboard + kiosk exit
 - `hours` — per-day start/end
-- `homework_url_allowlist` — school sites
-- `always_allow_domains` — proxy allowlist (includes mBlock hosts)
+- `homework_url_allowlist` / `homework_start_url` — Google / school entry points
+- `always_allow_domains` — proxy allowlist (Google + mBlock hosts)
 - `session_durations` — `[15, 30, 60]`
 - `dry_run_network: true` on Mac; `false` on the G10
 
