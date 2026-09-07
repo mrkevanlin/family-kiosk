@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 DEFAULT_CONFIG_PATHS = [
@@ -14,6 +14,18 @@ DEFAULT_CONFIG_PATHS = [
     Path("config/config.yaml"),
     Path("config/config.example.yaml"),
     Path("/etc/family-kiosk/config.yaml"),
+]
+
+# Activity tiles depend on these domains even when an older live config predates
+# the tile. Keeping them built in prevents upgrades from silently breaking
+# Apple Music or Typesy because /etc/family-kiosk/config.yaml is preserved.
+REQUIRED_ACTIVITY_DOMAINS = [
+    "apple.com",
+    "itunes.apple.com",
+    "mzstatic.com",
+    "cdn-apple.com",
+    "icloud.com",
+    "typesy.com",
 ]
 
 
@@ -45,6 +57,13 @@ class AppConfig(BaseModel):
             "FAMILY_KIOSK_SECRET", "change-me-family-kiosk-dev-secret"
         )
     )
+
+    @model_validator(mode="after")
+    def include_required_activity_domains(self) -> "AppConfig":
+        self.always_allow_domains = list(
+            dict.fromkeys([*self.always_allow_domains, *REQUIRED_ACTIVITY_DOMAINS])
+        )
+        return self
 
     @property
     def data_path(self) -> Path:

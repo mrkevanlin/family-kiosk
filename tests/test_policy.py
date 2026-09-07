@@ -52,6 +52,16 @@ def test_domain_matches():
     assert not domain_matches("khanacademy.org.evil.com", allowed)
 
 
+def test_required_activity_domains_are_added_to_old_configs():
+    cfg = _cfg(always_allow_domains=["localhost"])
+    assert "apple.com" in cfg.always_allow_domains
+    assert "itunes.apple.com" in cfg.always_allow_domains
+    assert "mzstatic.com" in cfg.always_allow_domains
+    assert "typesy.com" in cfg.always_allow_domains
+    assert domain_matches("music.apple.com", cfg.always_allow_domains)
+    assert domain_matches("www.typesy.com", cfg.always_allow_domains)
+
+
 def test_request_approve_flow(tmp_path):
     cfg = _cfg(data_dir=str(tmp_path))
     # Force open hours by using a Saturday afternoon
