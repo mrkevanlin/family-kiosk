@@ -152,18 +152,58 @@ echo "==> Installing Chromium SafeSearch / SafeSites policies"
 bash "$INSTALL_DIR/deploy/install-chromium-policies.sh" || true
 
 echo "==> Installing kiosk launcher for $KID_USER"
-install -d -o "$KID_USER" -g "$KID_USER" "$KID_HOME/.local/bin"
+install -d -o "$KID_USER" -g "$KID_USER" \
+  "$KID_HOME/.local/bin" \
+  "$KID_HOME/.local/state/family-kiosk"
 install -m 755 -o "$KID_USER" -g "$KID_USER" \
   "$INSTALL_DIR/deploy/gnome-kiosk-script" \
   "$KID_HOME/.local/bin/gnome-kiosk-script"
 
-# Force GNOME Kiosk session for the child account
+# Detect the installed kiosk session id (package names vary slightly).
+KIOSK_SESSION="gnome-kiosk-script-wayland"
+if [[ ! -f /usr/share/wayland-sessions/gnome-kiosk-script-wayland.desktop ]]; then
+  if [[ -f /usr/share/wayland-sessions/gnome-kiosk-script.desktop ]]; then
+    KIOSK_SESSION="gnome-kiosk-script"
+  elif ls /usr/share/wayland-sessions/*kiosk*script*wayland*.desktop >/dev/null 2>&1; then
+    KIOSK_SESSION="$(basename "$(ls /usr/share/wayland-sessions/*kiosk*script*wayland*.desktop | head -1)" .desktop)"
+  elif ls /usr/share/wayland-sessions/*kiosk*script*.desktop >/dev/null 2>&1; then
+    KIOSK_SESSION="$(basename "$(ls /usr/share/wayland-sessions/*kiosk*script*.desktop | head -1)" .desktop)"
+  else
+    echo "WARNING: No GNOME Kiosk session desktop file found."
+    echo "         Install gnome-kiosk-script-session, then run: sudo bash deploy/fix-kiosk.sh $KID_USER"
+  fi
+fi
+echo "Kiosk session: $KIOSK_SESSION"
+
+# Force GNOME Kiosk session for the child account (preserve other AccountsService keys).
+AS_FILE="/var/lib/AccountsService/users/$KID_USER"
 mkdir -p /var/lib/AccountsService/users
-cat > "/var/lib/AccountsService/users/$KID_USER" <<EOF
+if [[ -f "$AS_FILE" ]] && grep -q '^\[User\]' "$AS_FILE"; then
+  if grep -q '^Session=' "$AS_FILE"; then
+    sed -i "s/^Session=.*/Session=$KIOSK_SESSION/" "$AS_FILE"
+  else
+    printf '\nSession=%s\n' "$KIOSK_SESSION" >>"$AS_FILE"
+  fi
+  sed -i '/^XSession=/d' "$AS_FILE" || true
+  if grep -q '^SystemAccount=' "$AS_FILE"; then
+    sed -i 's/^SystemAccount=.*/SystemAccount=false/' "$AS_FILE"
+  else
+    printf 'SystemAccount=false\n' >>"$AS_FILE"
+  fi
+else
+  cat >"$AS_FILE" <<EOF
 [User]
-Session=gnome-kiosk-script-wayland
+Session=$KIOSK_SESSION
 SystemAccount=false
 EOF
+fi
+
+cat >"$KID_HOME/.dmrc" <<EOF
+[Desktop]
+Session=$KIOSK_SESSION
+EOF
+chown "$KID_USER:$KID_USER" "$KID_HOME/.dmrc"
+systemctl restart accounts-daemon 2>/dev/null || true
 
 # Hostname for phone bookmark (family-pc.local)
 hostnamectl set-hostname family-pc || true
@@ -178,8 +218,10 @@ echo "      sudo udevadm control --reload-rules"
 echo
 echo "Done."
 echo "  1. Edit /etc/family-kiosk/config.yaml (PIN, hours, homework allowlist)"
-echo "  2. Log in as $KID_USER — kiosk picker should open"
-echo "  3. On your iPhone (home Wi-Fi): http://family-pc.local:8787/parent"
-echo "  4. Parent account ($PARENT_USER) keeps a normal Ubuntu desktop"
-echo "  5. Verify chrome://policy shows ForceGoogleSafeSearch (see deploy/GOOGLE-SAFE.md)"
-echo "  6. Turn on Family Link / Workspace SafeSearch for his Google account too"
+echo "  2. Log out completely, then on the login screen pick $KID_USER"
+echo "     → gear icon → 'GNOME Kiosk Script' (Wayland) → sign in"
+echo "  3. If the picker still does not appear: sudo bash $INSTALL_DIR/deploy/fix-kiosk.sh $KID_USER"
+echo "  4. On your iPhone (home Wi-Fi): http://family-pc.local:8787/parent"
+echo "  5. Parent account ($PARENT_USER) keeps a normal Ubuntu desktop"
+echo "  6. Verify chrome://policy shows ForceGoogleSafeSearch (see deploy/GOOGLE-SAFE.md)"
+echo "  7. Turn on Family Link / Workspace SafeSearch for his Google account too"

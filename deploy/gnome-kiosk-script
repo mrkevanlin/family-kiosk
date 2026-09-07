@@ -1,28 +1,43 @@
 #!/bin/sh
-# GNOME Kiosk session script for the kid account.
+# GNOME Kiosk session script for the child account.
 # Installed to ~/.local/bin/gnome-kiosk-script
 
 set -eu
 
 FAMILYD_URL="${FAMILYD_URL:-http://127.0.0.1:8787/}"
 DATA_DIR="${FAMILY_KIOSK_DATA:-/var/lib/family-kiosk}"
+LOG_FILE="${HOME}/.local/state/family-kiosk/kiosk.log"
 CHROMIUM="$(command -v chromium-browser || command -v chromium || command -v google-chrome || true)"
 
+mkdir -p "$(dirname "$LOG_FILE")"
+exec >>"$LOG_FILE" 2>&1
+echo "---- $(date -Is) starting gnome-kiosk-script as $(id -un) ----"
+
 if [ -z "$CHROMIUM" ]; then
-  echo "Chromium not found" >&2
-  sleep 30
-  exec "$0" "$@"
+  echo "Chromium not found in PATH=$PATH"
+  # Snap Chromium is common on Ubuntu.
+  if [ -x /snap/bin/chromium ]; then
+    CHROMIUM=/snap/bin/chromium
+  else
+    sleep 30
+    exec "$0" "$@"
+  fi
 fi
+echo "Using Chromium: $CHROMIUM"
 
 # Wait for familyd
 i=0
 while [ "$i" -lt 60 ]; do
   if curl -sf http://127.0.0.1:8787/healthz >/dev/null 2>&1; then
+    echo "familyd is up"
     break
   fi
   i=$((i + 1))
   sleep 1
 done
+if [ "$i" -ge 60 ]; then
+  echo "WARNING: familyd did not become ready; launching picker anyway"
+fi
 
 PROFILE_DIR="$HOME/.config/family-kiosk-chromium"
 mkdir -p "$PROFILE_DIR"
@@ -31,7 +46,10 @@ mkdir -p "$PROFILE_DIR"
 (
   LAUNCH_SCRIPT="/opt/family-kiosk/deploy/launch-activity.sh"
   if [ ! -x "$LAUNCH_SCRIPT" ]; then
-    LAUNCH_SCRIPT="$(dirname "$0")/launch-activity.sh"
+    LAUNCH_SCRIPT="$(dirname "$0")/../launch-activity.sh"
+  fi
+  if [ ! -x "$LAUNCH_SCRIPT" ]; then
+    LAUNCH_SCRIPT="/opt/family-kiosk/deploy/launch-activity.sh"
   fi
   while true; do
     if [ -f "$DATA_DIR/exit_kiosk.flag" ]; then
@@ -50,13 +68,10 @@ mkdir -p "$PROFILE_DIR"
   done
 ) &
 
-export http_proxy="http://127.0.0.1:8888"
-export https_proxy="http://127.0.0.1:8888"
-export no_proxy="127.0.0.1,localhost"
-
-# When an approved internet session is active, familyd clears nftables blocks and
-# the proxy still allows everything that reaches it only for always-allow hosts.
-# For unrestricted Web, launch-activity.sh starts Chromium without the proxy.
+# Do NOT send the picker through the allowlist proxy.
+# Chromium --proxy-server ignores no_proxy, and our proxy always forwards
+# plain HTTP to port 80 — so http://127.0.0.1:8787/ would never load.
+# Homework/mBlock/Web set their own proxy in launch-activity.sh.
 
 "$CHROMIUM" \
   --kiosk \
@@ -67,8 +82,9 @@ export no_proxy="127.0.0.1,localhost"
   --disable-translate \
   --check-for-update-interval=31536000 \
   --user-data-dir="$PROFILE_DIR/picker" \
-  --proxy-server="http://127.0.0.1:8888" \
-  "$FAMILYD_URL"
+  --proxy-bypass-list="127.0.0.1,localhost,<local>" \
+  --no-proxy-server \
+  "$FAMILYD_URL" || echo "Chromium exited with status $?"
 
 sleep 1
 exec "$0" "$@"
