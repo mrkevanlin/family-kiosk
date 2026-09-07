@@ -18,7 +18,10 @@
       <p class="brand">Family Computer</p>
       <h1>Parent</h1>
     </div>
-    <button type="button" id="logout-btn" class="ghost-btn {% if not authenticated %}hidden{% endif %}">Log out</button>
+    <div class="top-meta">
+      <a href="/" class="ghost-btn" id="back-picker-btn">Back to picker</a>
+      <button type="button" id="logout-btn" class="ghost-btn {% if not authenticated %}hidden{% endif %}">Log out</button>
+    </div>
   </header>
 
   <main class="parent-main">
@@ -51,6 +54,12 @@
         <h2>Internet session</h2>
         <div class="duration-row" id="manual-durations"></div>
         <button type="button" id="end-session-btn" class="danger-btn full">End internet now</button>
+      </section>
+
+      <section class="block">
+        <h2>Kiosk</h2>
+        <p class="muted" style="margin-top:0">Return to the activity picker, or leave the kiosk so you can sign in with the parent Ubuntu account.</p>
+        <button type="button" id="exit-kiosk-btn" class="danger-btn full">Exit kiosk (login screen)</button>
       </section>
 
       <section class="block">

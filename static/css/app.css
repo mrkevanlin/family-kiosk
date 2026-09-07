@@ -120,6 +120,11 @@ body {
   align-items: center;
 }
 
+.top-meta a.ghost-btn {
+  text-decoration: none;
+  display: inline-block;
+}
+
 .chip {
   margin: 0;
   padding: 0.45rem 0.85rem;
