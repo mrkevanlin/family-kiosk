@@ -90,6 +90,7 @@ class PolicyService:
             "pending_request": pending[0] if pending else None,
             "session_durations": self.cfg.session_durations,
             "mblock_url": self.cfg.mblock_url,
+            "homework_start_url": self.cfg.homework_start_url,
             "homework_url_allowlist": self.cfg.homework_url_allowlist,
             "activities": self._activities(hours.open, session.active),
         }
@@ -101,7 +102,7 @@ class PolicyService:
             {
                 "id": "homework",
                 "title": "Homework",
-                "subtitle": "School sites only",
+                "subtitle": "Google with SafeSearch on",
                 "action": "launch_homework",
                 "enabled": True,
             },

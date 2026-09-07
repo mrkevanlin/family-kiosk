@@ -73,9 +73,11 @@
         if (name === "mblock") {
           window.open(data.mblock_url || status.mblock_url || "https://ide.mblock.cc", "_blank");
         } else if (name === "homework") {
-          const first = (data.homework_urls || status.homework_url_allowlist || [])[0]
-            || "https://classroom.google.com";
-          window.open(String(first).replace("/*", ""), "_blank");
+          const start =
+            data.homework_start_url ||
+            status.homework_start_url ||
+            "https://www.google.com/?safe=active&ssui=on";
+          window.open(start, "_blank");
         } else if (name === "web") {
           window.open("https://www.wikipedia.org", "_blank");
         }

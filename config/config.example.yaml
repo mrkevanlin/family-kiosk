@@ -28,13 +28,60 @@ always_allow_domains:
   - localhost
   - 127.0.0.1
   - family-pc.local
-  # Homework (edit for your school tools)
+  # Google / GSuite homework (SafeSearch forced via Chromium policies)
+  - google.com
+  - www.google.com
+  - accounts.google.com
+  - myaccount.google.com
   - classroom.google.com
   - docs.google.com
   - drive.google.com
-  - accounts.google.com
+  - sheets.google.com
+  - slides.google.com
+  - forms.google.com
+  - mail.google.com
+  - gmail.com
+  - www.gmail.com
+  - calendar.google.com
+  - meet.google.com
+  - chat.google.com
+  - sites.google.com
+  - jamboard.google.com
+  - keep.google.com
+  - photos.google.com
+  - books.google.com
+  - scholar.google.com
+  - translate.google.com
+  - maps.google.com
+  - www.google.com
+  - encrypted.google.com
+  - clients1.google.com
+  - clients2.google.com
+  - clients3.google.com
+  - clients4.google.com
+  - clients5.google.com
+  - clients6.google.com
+  - apis.google.com
+  - oauthaccountmanager.googleapis.com
+  - www.googleapis.com
+  - googleapis.com
+  - gstatic.com
+  - www.gstatic.com
   - fonts.gstatic.com
   - fonts.googleapis.com
+  - lh3.googleusercontent.com
+  - lh4.googleusercontent.com
+  - lh5.googleusercontent.com
+  - lh6.googleusercontent.com
+  - googleusercontent.com
+  - ssl.gstatic.com
+  - youtube.com
+  - www.youtube.com
+  - youtu.be
+  - ytimg.com
+  - i.ytimg.com
+  - ggpht.com
+  # Optional school tools
   - www.khanacademy.org
   - khanacademy.org
   - cdn.kastatic.org
@@ -49,12 +96,26 @@ always_allow_domains:
   - static.makeblock.com
   - cdn.makeblock.com
 
-# Homework Chromium profile — only these URL patterns are allowed.
+# Homework starts here (Google login / search with SafeSearch policies).
+homework_start_url: "https://www.google.com/?safe=active&ssui=on"
+
+# Homework Chromium profile — URL patterns (informational + browser preview).
+# Network enforcement uses always_allow_domains + Chromium SafeSearch policies.
 homework_url_allowlist:
+  - "https://www.google.com/*"
+  - "https://google.com/*"
+  - "https://accounts.google.com/*"
   - "https://classroom.google.com/*"
   - "https://docs.google.com/*"
   - "https://drive.google.com/*"
-  - "https://accounts.google.com/*"
+  - "https://sheets.google.com/*"
+  - "https://slides.google.com/*"
+  - "https://forms.google.com/*"
+  - "https://mail.google.com/*"
+  - "https://calendar.google.com/*"
+  - "https://meet.google.com/*"
+  - "https://www.youtube.com/*"
+  - "https://youtube.com/*"
   - "https://www.khanacademy.org/*"
   - "https://khanacademy.org/*"
 

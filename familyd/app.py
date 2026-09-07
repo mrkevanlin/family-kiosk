@@ -142,6 +142,7 @@ def create_app(cfg: AppConfig | None = None) -> FastAPI:
             "ok": True,
             "activity": activity,
             "mblock_url": cfg.mblock_url,
+            "homework_start_url": cfg.homework_start_url,
             "homework_urls": cfg.homework_url_allowlist,
         }
 
