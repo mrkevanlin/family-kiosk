@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body class="kid-body">
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="kid-top">
+    <div>
+      <p class="brand">Family Computer</p>
+      <p id="clock" class="clock">—</p>
+    </div>
+    <div class="top-meta">
+      <p id="session-chip" class="chip hidden"></p>
+      <button type="button" id="parent-btn" class="ghost-btn" title="Parent">Parent</button>
+    </div>
+  </header>
+
+  <main id="main" class="kid-main">
+    <section id="closed-panel" class="closed-panel hidden">
+      <h1 id="closed-title">Computer is closed</h1>
+      <p id="closed-message" class="lede"></p>
+    </section>
+
+    <section id="picker-panel" class="picker-panel hidden">
+      <h1 class="picker-heading">What do you want to do?</h1>
+      <p id="hours-message" class="lede"></p>
+      <div id="tiles" class="tiles"></div>
+      <p id="pending-note" class="pending-note hidden"></p>
+    </section>
+  </main>
+
+  <dialog id="request-dialog" class="sheet">
+    <form method="dialog" id="request-form">
+      <h2>Ask for internet</h2>
+      <p class="lede">A parent will review this on their phone.</p>
+      <div id="duration-choices" class="duration-row"></div>
+      <label class="field">
+        <span>Note (optional)</span>
+        <input type="text" id="request-note" maxlength="120" placeholder="Homework research" />
+      </label>
+      <div class="sheet-actions">
+        <button type="submit" value="cancel" class="ghost-btn">Cancel</button>
+        <button type="submit" value="send" class="primary-btn" id="send-request">Send request</button>
+      </div>
+      <p id="request-error" class="error hidden"></p>
+    </form>
+  </dialog>
+
+  <dialog id="pin-dialog" class="sheet">
+    <form method="dialog" id="pin-form">
+      <h2>Parent unlock</h2>
+      <p class="lede">Enter the parent PIN to leave the kiosk.</p>
+      <label class="field">
+        <span>PIN</span>
+        <input type="password" id="parent-pin" inputmode="numeric" autocomplete="off" maxlength="32" />
+      </label>
+      <div class="sheet-actions">
+        <button type="submit" value="cancel" class="ghost-btn">Cancel</button>
+        <button type="submit" value="unlock" class="primary-btn">Unlock</button>
+      </div>
+      <p id="pin-error" class="error hidden"></p>
+    </form>
+  </dialog>
+
+  <script src="/static/js/kid.js"></script>
+</body>
+</html>
