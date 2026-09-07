@@ -57,6 +57,8 @@
     const map = {
       launch_homework: "homework",
       launch_mblock: "mblock",
+      launch_apple_music: "apple_music",
+      launch_typesy: "typesy",
       launch_web: "web",
     };
     const name = map[activity.action];
@@ -72,6 +74,16 @@
         // Browser preview fallback when no kiosk wrapper is watching launch flags.
         if (name === "mblock") {
           window.open(data.mblock_url || status.mblock_url || "https://ide.mblock.cc", "_blank");
+        } else if (name === "apple_music") {
+          window.open(
+            data.apple_music_url || status.apple_music_url || "https://music.apple.com/us/browse",
+            "_blank"
+          );
+        } else if (name === "typesy") {
+          window.open(
+            data.typesy_url || status.typesy_url || "https://www.typesy.com/type/",
+            "_blank"
+          );
         } else if (name === "homework") {
           const start =
             data.homework_start_url ||

@@ -95,6 +95,33 @@ always_allow_domains:
   - dl.makeblock.com
   - static.makeblock.com
   - cdn.makeblock.com
+  # Apple Music web player + Apple ID sign-in
+  - music.apple.com
+  - embed.music.apple.com
+  - itunes.apple.com
+  - apple.com
+  - www.apple.com
+  - appleid.apple.com
+  - idmsa.apple.com
+  - iforgot.apple.com
+  - gsa.apple.com
+  - mzstatic.com
+  - is1-ssl.mzstatic.com
+  - is2-ssl.mzstatic.com
+  - is3-ssl.mzstatic.com
+  - is4-ssl.mzstatic.com
+  - is5-ssl.mzstatic.com
+  - audio-ssl.itunes.apple.com
+  - amp-api.music.apple.com
+  - amp-api-edge.music.apple.com
+  - xp.apple.com
+  - play.itunes.apple.com
+  - securelypass.apple.com
+  - gsp64-ssl.ls.apple.com
+  - configuration.apple.com
+  - bag.itunes.apple.com
+  # Typesy web app (typesy.com also allows its subdomains)
+  - typesy.com
 
 # Homework starts here (Google login / search with SafeSearch policies).
 homework_start_url: "https://www.google.com/?safe=active&ssui=on"
@@ -121,6 +148,12 @@ homework_url_allowlist:
 
 # mBlock Chromium profile start URL
 mblock_url: "https://ide.mblock.cc"
+
+# Apple Music web player (no native Linux app)
+apple_music_url: "https://music.apple.com/us/browse"
+
+# Typesy web app
+typesy_url: "https://www.typesy.com/type/"
 
 # Allowed request durations (minutes)
 session_durations: [15, 30, 60]

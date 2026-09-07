@@ -31,6 +31,8 @@ class AppConfig(BaseModel):
     homework_url_allowlist: list[str] = Field(default_factory=list)
     homework_start_url: str = "https://www.google.com/?safe=active&ssui=on"
     mblock_url: str = "https://ide.mblock.cc"
+    apple_music_url: str = "https://music.apple.com/us/browse"
+    typesy_url: str = "https://www.typesy.com/type/"
     session_durations: list[int] = Field(default_factory=lambda: [15, 30, 60])
     host: str = "0.0.0.0"
     port: int = 8787

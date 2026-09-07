@@ -228,6 +228,8 @@ body {
 
 .tile-homework { background: linear-gradient(160deg, #fffaf1, #e7f3ef); }
 .tile-mblock { background: linear-gradient(160deg, #fff8ec, #fde7d4); }
+.tile-apple_music { background: linear-gradient(160deg, #fff5f7, #f5d0d8); }
+.tile-typesy { background: linear-gradient(160deg, #f4f3ff, #d9d5f5); }
 .tile-ask_internet { background: linear-gradient(160deg, #f7f3ea, #dcece8); }
 .tile-web { background: linear-gradient(160deg, #fff6e8, #f3d9b8); }
 
