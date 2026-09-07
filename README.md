@@ -13,6 +13,8 @@ A simple Ubuntu kiosk for a family mini PC (GMKtec G10 and similar). Your child 
 ## Quick start (Mac / browser preview)
 
 ```bash
+# From your machine (private repo: sign in first — `gh auth login` or SSH keys)
+gh repo clone family-kiosk
 cd family-kiosk
 # Prefer Python 3.11–3.13 (Homebrew: python3.13). System 3.14 may lack wheels.
 python3.13 -m venv .venv
@@ -36,9 +38,13 @@ pytest -q
 
 1. Install Ubuntu Desktop (wipe Windows). Ryzen 5 3500U / Vega 8 works well. If 2.5GbE is flaky (Realtek RTL8125), use Wi‑Fi.
 2. Create your **parent** account during install (full desktop + sudo).
-3. Copy this repo onto the machine, then:
+3. On the parent account, clone this repo and run the installer:
 
 ```bash
+sudo apt update && sudo apt install -y git gh
+gh auth login    # required once if the repo is private
+gh repo clone family-kiosk
+cd family-kiosk
 sudo bash deploy/install-ubuntu.sh
 sudo nano /etc/family-kiosk/config.yaml   # change parent_pin, hours, homework sites
 sudo systemctl restart familyd
