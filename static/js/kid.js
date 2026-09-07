@@ -15,6 +15,7 @@
 
   let selectedMinutes = null;
   let lastStatus = null;
+  let renderedActivities = null;
 
   function formatClock(now = new Date()) {
     return now.toLocaleString(undefined, {
@@ -37,14 +38,27 @@
   }
 
   function renderTiles(status) {
+    const activities = status.activities || [];
+    const signature = JSON.stringify(
+      activities.map(({ id, title, subtitle, action, enabled }) => ({
+        id,
+        title,
+        subtitle,
+        action,
+        enabled,
+      }))
+    );
+    if (signature === renderedActivities) return;
+    renderedActivities = signature;
+
     tilesEl.innerHTML = "";
-    for (const activity of status.activities || []) {
+    for (const activity of activities) {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = `tile tile-${activity.id}`;
       btn.disabled = !activity.enabled;
       btn.innerHTML = `<span class="tile-title">${activity.title}</span><span class="tile-sub">${activity.subtitle}</span>`;
-      btn.addEventListener("click", () => handleAction(activity, status));
+      btn.addEventListener("click", () => handleAction(activity, lastStatus || status));
       tilesEl.appendChild(btn);
     }
   }
