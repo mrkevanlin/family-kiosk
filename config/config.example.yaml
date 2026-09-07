@@ -120,6 +120,8 @@ always_allow_domains:
   - gsp64-ssl.ls.apple.com
   - configuration.apple.com
   - bag.itunes.apple.com
+  - cdn-apple.com
+  - icloud.com
   # Typesy web app (typesy.com also allows its subdomains)
   - typesy.com
 

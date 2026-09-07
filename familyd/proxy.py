@@ -76,6 +76,7 @@ class AllowlistProxy:
             host, _, port_s = host_port.partition(":")
             port = int(port_s or "443")
             if not domain_matches(host, self.allowed_domains):
+                log.warning("Blocked CONNECT to non-allowlisted host: %s", host)
                 writer.write(b"HTTP/1.1 403 Forbidden\r\n\r\n")
                 await writer.drain()
                 writer.close()
@@ -107,6 +108,7 @@ class AllowlistProxy:
             return
         host = host_match.group(1).decode("latin1").split(":")[0]
         if not domain_matches(host, self.allowed_domains):
+            log.warning("Blocked HTTP request to non-allowlisted host: %s", host)
             writer.write(b"HTTP/1.1 403 Forbidden\r\n\r\n")
             await writer.drain()
             writer.close()

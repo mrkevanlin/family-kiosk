@@ -9,6 +9,7 @@ A simple Ubuntu kiosk for a family mini PC (GMKtec G10 and similar). Your child 
 - **Internet** is off by default. Google / GSuite and mBlock domains stay reachable. Everything else needs a timed approval (15 / 30 / 60 minutes).
 - **Explicit content**: Chromium policies force Google SafeSearch (including Images), YouTube Restricted Mode, and SafeSites filtering. See [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md).
 - **Parent review** on your iPhone (home Wi‑Fi): open `http://family-pc.local:8787/parent`, enter your PIN, approve or deny. Push notifications can come later.
+- **Activity navigation**: every launched site has a sticky **Back to picker** header; the picker stays open underneath.
 
 ## Quick start (Mac / browser preview)
 
@@ -104,7 +105,8 @@ See also [deploy/MBLOCK.md](deploy/MBLOCK.md) for robot USB setup and
 
 - `familyd` runs as root (systemd) and manages an `inet family_kiosk` nftables table.
 - When internet is **off**, the kid UID cannot make general outbound connections (loopback, DNS, and port 8787 stay open).
-- An allowlist HTTP proxy on `127.0.0.1:8888` lets Homework / mBlock domains through while general web stays blocked.
+- An allowlist HTTP proxy on `127.0.0.1:8888` lets School, mBlock, Apple Music, and Typesy domains through while general web stays blocked.
+- Required Apple Music and Typesy domain families are built in, so existing live configs gain them automatically after `familyd` restarts.
 - When you approve a session, nftables restrictions are cleared until the timer ends.
 
 ## Config highlights

@@ -7,12 +7,21 @@ ACTIVITY="${1:-}"
 CONFIG="${FAMILY_KIOSK_CONFIG:-/etc/family-kiosk/config.yaml}"
 CHROMIUM="$(command -v chromium-browser || command -v chromium || true)"
 PROFILE_ROOT="${HOME}/.config/family-kiosk-chromium"
+EXTENSION_SRC="$(cd "$(dirname "$0")" && pwd)/activity-header"
+EXTENSION_DIR="${HOME}/.local/share/family-kiosk/activity-header"
 mkdir -p "$PROFILE_ROOT"
 
 if [[ -z "$CHROMIUM" ]]; then
   echo "Chromium not found" >&2
   exit 1
 fi
+
+if [[ ! -f "$EXTENSION_SRC/manifest.json" ]]; then
+  echo "Activity header extension not found: $EXTENSION_SRC" >&2
+  exit 1
+fi
+mkdir -p "$EXTENSION_DIR"
+cp -a "$EXTENSION_SRC/." "$EXTENSION_DIR/"
 
 # Shared Chromium flags: SafeSearch policies come from managed JSON installed
 # by deploy/install-chromium-policies.sh (see chrome://policy).
@@ -23,6 +32,9 @@ COMMON_FLAGS=(
   --disable-session-crashed-bubble
   --disable-translate
   --autoplay-policy=no-user-gesture-required
+  "--proxy-bypass-list=127.0.0.1,localhost,<local>"
+  --disable-extensions-except="$EXTENSION_DIR"
+  --load-extension="$EXTENSION_DIR"
 )
 
 read_cfg() {
