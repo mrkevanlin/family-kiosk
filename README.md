@@ -64,10 +64,12 @@ sudo nano /etc/family-kiosk/config.yaml   # change parent_pin, hours, homework s
 sudo systemctl restart familyd
 ```
 
-4. Log out completely. On the login screen select the **child** user, open the **gear** icon (bottom-right), choose **GNOME Kiosk Script** (Wayland), then sign in.
-5. If you still get a normal desktop: `sudo bash deploy/fix-kiosk.sh` then log out and try the gear menu again.
+4. Log out completely (or reboot), then sign in as the **child** user. You do **not** need a gear icon — the installer sets their default session to GNOME Kiosk.
+5. If you still get a normal desktop: `sudo bash deploy/fix-kiosk.sh` then **reboot** and sign in as the child again.
 6. On your iPhone (same Wi‑Fi), bookmark **http://family-pc.local:8787/parent**.
 7. Verify SafeSearch policies: on the kid session open `chrome://policy`, and set up [Family Link](https://families.google.com/familylink) (or school admin controls) for his Google account — details in [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md).
+
+Note: Ubuntu’s login screen only shows the session gear when multiple sessions are offered. If the kiosk session package was missing, Ubuntu was the only option — so there was no gear and the child kept getting a normal desktop. `fix-kiosk.sh` installs the kiosk session and forces it as the child’s default.
 
 ### mBlock (Linux)
 
