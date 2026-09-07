@@ -145,6 +145,20 @@
     await refresh();
   });
 
+  const exitKioskBtn = document.getElementById("exit-kiosk-btn");
+  if (exitKioskBtn) {
+    exitKioskBtn.addEventListener("click", async () => {
+      if (!window.confirm("Exit the kiosk and return to the login screen?")) return;
+      try {
+        await api("/api/parent/exit-kiosk", { method: "POST" });
+        exitKioskBtn.textContent = "Signing out…";
+        exitKioskBtn.disabled = true;
+      } catch (err) {
+        alert(err.message || "Could not exit kiosk");
+      }
+    });
+  }
+
   showAuth(authenticated);
   refresh();
   setInterval(refresh, 4000);

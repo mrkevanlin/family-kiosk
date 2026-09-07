@@ -194,7 +194,8 @@
     e.preventDefault();
     const pin = document.getElementById("parent-pin").value;
     try {
-      const res = await fetch("/api/parent/exit-kiosk", {
+      // Open the parent dashboard — do not exit the kiosk session here.
+      const res = await fetch("/api/parent/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pin }),
@@ -207,7 +208,6 @@
       }
       pinDialog.close();
       pinError.classList.add("hidden");
-      // Browser preview: go to parent dashboard. On device, kiosk wrapper logs out.
       window.location.href = "/parent";
     } catch (err) {
       pinError.textContent = "Network error";

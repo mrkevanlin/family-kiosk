@@ -93,9 +93,9 @@ Kid tile **mBlock** opens https://ide.mblock.cc through the allowlist proxy.
 | `config/` | YAML config (hours, allowlists, PIN) |
 | `deploy/` | systemd unit, GNOME kiosk script, Ubuntu installer |
 
-## Parent PIN exit
+## Parent controls
 
-On the kid screen, **Parent** asks for the PIN and writes an exit flag. The kiosk wrapper ends the kid session so you can log into the parent desktop.
+On the kid screen, **Parent** asks for the PIN and opens the parent dashboard (approve internet, etc.). From the dashboard you can **Exit kiosk** to return to the login screen and sign in with the parent Ubuntu account.
 
 See also [deploy/MBLOCK.md](deploy/MBLOCK.md) for robot USB setup and
 [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md) for SafeSearch / explicit-content lockdown.

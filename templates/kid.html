@@ -56,15 +56,15 @@
 
   <dialog id="pin-dialog" class="sheet">
     <form method="dialog" id="pin-form">
-      <h2>Parent unlock</h2>
-      <p class="lede">Enter the parent PIN to leave the kiosk.</p>
+      <h2>Parent controls</h2>
+      <p class="lede">Enter the parent PIN to open the dashboard. You can exit to the login screen from there if you need the full parent desktop.</p>
       <label class="field">
         <span>PIN</span>
         <input type="password" id="parent-pin" inputmode="numeric" autocomplete="off" maxlength="32" />
       </label>
       <div class="sheet-actions">
         <button type="submit" value="cancel" class="ghost-btn">Cancel</button>
-        <button type="submit" value="unlock" class="primary-btn">Unlock</button>
+        <button type="submit" value="unlock" class="primary-btn">Open dashboard</button>
       </div>
       <p id="pin-error" class="error hidden"></p>
     </form>

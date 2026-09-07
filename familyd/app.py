@@ -154,14 +154,14 @@ def create_app(cfg: AppConfig | None = None) -> FastAPI:
         return {"ok": ok}
 
     @app.post("/api/parent/exit-kiosk")
-    async def api_exit_kiosk(body: PinBody) -> dict[str, Any]:
-        """Kid UI calls this after PIN; install script maps it to session logout."""
-        if not policy.verify_pin(body.pin):
-            raise HTTPException(status_code=403, detail="Wrong PIN")
-        # Write a flag the kiosk wrapper watches, or invoke loginctl when available.
+    async def api_exit_kiosk(
+        request: Request,
+        _: None = Depends(require_parent),
+    ) -> dict[str, Any]:
+        """End the child kiosk session (return to GDM login). Requires parent session."""
         flag = cfg.data_path / "exit_kiosk.flag"
         flag.write_text("1", encoding="utf-8")
-        db.log_event("exit_kiosk", "parent pin accepted")
+        db.log_event("exit_kiosk", "parent dashboard")
         return {"ok": True, "action": "exit_kiosk"}
 
     # ---------- Parent API ----------
