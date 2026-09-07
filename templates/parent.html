@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>{{ title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body class="parent-body">
+  <div class="atmosphere atmosphere-parent" aria-hidden="true"></div>
+
+  <header class="parent-top">
+    <div>
+      <p class="brand">Family Computer</p>
+      <h1>Parent</h1>
+    </div>
+    <button type="button" id="logout-btn" class="ghost-btn {% if not authenticated %}hidden{% endif %}">Log out</button>
+  </header>
+
+  <main class="parent-main">
+    <section id="login-panel" class="{% if authenticated %}hidden{% endif %}">
+      <form id="login-form" class="login-card">
+        <h2>Enter PIN</h2>
+        <p class="lede">Approvals stay on your home Wi‑Fi. Bookmark this page on your iPhone.</p>
+        <label class="field">
+          <span>Parent PIN</span>
+          <input type="password" id="login-pin" inputmode="numeric" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="primary-btn full">Open dashboard</button>
+        <p id="login-error" class="error hidden"></p>
+      </form>
+    </section>
+
+    <section id="dash-panel" class="{% if not authenticated %}hidden{% endif %}">
+      <div id="status-card" class="status-card">
+        <p id="hours-line" class="status-line">Loading…</p>
+        <p id="session-line" class="status-line muted"></p>
+      </div>
+
+      <section class="block">
+        <h2>Pending requests</h2>
+        <div id="pending-list" class="list"></div>
+        <p id="pending-empty" class="muted hidden">No requests waiting.</p>
+      </section>
+
+      <section class="block">
+        <h2>Internet session</h2>
+        <div class="duration-row" id="manual-durations"></div>
+        <button type="button" id="end-session-btn" class="danger-btn full">End internet now</button>
+      </section>
+
+      <section class="block">
+        <h2>Recent activity</h2>
+        <ul id="events-list" class="events"></ul>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    window.__PARENT_AUTH__ = {{ 'true' if authenticated else 'false' }};
+  </script>
+  <script src="/static/js/parent.js"></script>
+</body>
+</html>

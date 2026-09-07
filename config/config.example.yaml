@@ -1,0 +1,77 @@
+# Family Kiosk configuration
+# Copy to /etc/family-kiosk/config.yaml on the G10 (or config/config.yaml for local dev).
+
+timezone: America/New_York
+
+# Parent PIN for dashboard login and kiosk "Parent" exit control.
+# Change this before first use.
+parent_pin: "1234"
+
+# Kid Linux username (used by nftables helper for UID-based filtering).
+kid_username: kid
+
+# Computer hours — kid can only use the machine during these windows.
+# Days: monday, tuesday, wednesday, thursday, friday, saturday, sunday
+hours:
+  monday:    { start: "16:00", end: "20:00" }
+  tuesday:   { start: "16:00", end: "20:00" }
+  wednesday: { start: "16:00", end: "20:00" }
+  thursday:  { start: "16:00", end: "20:00" }
+  friday:    { start: "16:00", end: "20:00" }
+  saturday:  { start: "09:00", end: "20:00" }
+  sunday:    { start: "09:00", end: "20:00" }
+
+# Domains always reachable even when general internet is off.
+# Used by the allowlist proxy / nftables helper.
+always_allow_domains:
+  # Local familyd (picker / parent dashboard)
+  - localhost
+  - 127.0.0.1
+  - family-pc.local
+  # Homework (edit for your school tools)
+  - classroom.google.com
+  - docs.google.com
+  - drive.google.com
+  - accounts.google.com
+  - fonts.gstatic.com
+  - fonts.googleapis.com
+  - www.khanacademy.org
+  - khanacademy.org
+  - cdn.kastatic.org
+  # mBlock web IDE + CDN
+  - ide.mblock.cc
+  - ide.makeblock.com
+  - mblock.cc
+  - www.mblock.cc
+  - makeblock.com
+  - www.makeblock.com
+  - dl.makeblock.com
+  - static.makeblock.com
+  - cdn.makeblock.com
+
+# Homework Chromium profile — only these URL patterns are allowed.
+homework_url_allowlist:
+  - "https://classroom.google.com/*"
+  - "https://docs.google.com/*"
+  - "https://drive.google.com/*"
+  - "https://accounts.google.com/*"
+  - "https://www.khanacademy.org/*"
+  - "https://khanacademy.org/*"
+
+# mBlock Chromium profile start URL
+mblock_url: "https://ide.mblock.cc"
+
+# Allowed request durations (minutes)
+session_durations: [15, 30, 60]
+
+# HTTP bind
+host: "0.0.0.0"
+port: 8787
+
+# Paths (override for local Mac development)
+data_dir: "data"
+static_dir: "static"
+templates_dir: "templates"
+
+# When true, skip nftables helper (Mac/dev). On Ubuntu install this is false.
+dry_run_network: true

@@ -1,0 +1,22 @@
+[Unit]
+Description=Family Kiosk daemon (familyd)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/family-kiosk
+Environment=FAMILY_KIOSK_CONFIG=/etc/family-kiosk/config.yaml
+Environment=FAMILY_KIOSK_SECRET=change-me-on-install
+ExecStart=/opt/family-kiosk/.venv/bin/python -m familyd
+Restart=always
+RestartSec=2
+
+# Allow nftables management
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_SETUID CAP_SETGID
+
+[Install]
+WantedBy=multi-user.target

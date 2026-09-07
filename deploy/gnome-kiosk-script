@@ -1,0 +1,74 @@
+#!/bin/sh
+# GNOME Kiosk session script for the kid account.
+# Installed to ~/.local/bin/gnome-kiosk-script
+
+set -eu
+
+FAMILYD_URL="${FAMILYD_URL:-http://127.0.0.1:8787/}"
+DATA_DIR="${FAMILY_KIOSK_DATA:-/var/lib/family-kiosk}"
+CHROMIUM="$(command -v chromium-browser || command -v chromium || command -v google-chrome || true)"
+
+if [ -z "$CHROMIUM" ]; then
+  echo "Chromium not found" >&2
+  sleep 30
+  exec "$0" "$@"
+fi
+
+# Wait for familyd
+i=0
+while [ "$i" -lt 60 ]; do
+  if curl -sf http://127.0.0.1:8787/healthz >/dev/null 2>&1; then
+    break
+  fi
+  i=$((i + 1))
+  sleep 1
+done
+
+PROFILE_DIR="$HOME/.config/family-kiosk-chromium"
+mkdir -p "$PROFILE_DIR"
+
+# Watch for parent exit flag and activity launch requests
+(
+  LAUNCH_SCRIPT="/opt/family-kiosk/deploy/launch-activity.sh"
+  if [ ! -x "$LAUNCH_SCRIPT" ]; then
+    LAUNCH_SCRIPT="$(dirname "$0")/launch-activity.sh"
+  fi
+  while true; do
+    if [ -f "$DATA_DIR/exit_kiosk.flag" ]; then
+      rm -f "$DATA_DIR/exit_kiosk.flag"
+      loginctl terminate-user "$(id -un)" 2>/dev/null || true
+      break
+    fi
+    if [ -f "$DATA_DIR/launch_activity" ]; then
+      ACT="$(cat "$DATA_DIR/launch_activity" 2>/dev/null || true)"
+      rm -f "$DATA_DIR/launch_activity"
+      if [ -n "$ACT" ] && [ -x "$LAUNCH_SCRIPT" ]; then
+        "$LAUNCH_SCRIPT" "$ACT" >/tmp/family-kiosk-launch.log 2>&1 &
+      fi
+    fi
+    sleep 1
+  done
+) &
+
+export http_proxy="http://127.0.0.1:8888"
+export https_proxy="http://127.0.0.1:8888"
+export no_proxy="127.0.0.1,localhost"
+
+# When an approved internet session is active, familyd clears nftables blocks and
+# the proxy still allows everything that reaches it only for always-allow hosts.
+# For unrestricted Web, launch-activity.sh starts Chromium without the proxy.
+
+"$CHROMIUM" \
+  --kiosk \
+  --noerrdialogs \
+  --disable-infobars \
+  --no-first-run \
+  --disable-session-crashed-bubble \
+  --disable-translate \
+  --check-for-update-interval=31536000 \
+  --user-data-dir="$PROFILE_DIR/picker" \
+  --proxy-server="http://127.0.0.1:8888" \
+  "$FAMILYD_URL"
+
+sleep 1
+exec "$0" "$@"
