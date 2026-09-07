@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Launch a kid activity Chromium profile.
-# Usage: launch-activity.sh homework|mblock|web
+# Usage: launch-activity.sh homework|mblock|apple_music|typesy|web
 set -euo pipefail
 
 ACTIVITY="${1:-}"
@@ -22,6 +22,7 @@ COMMON_FLAGS=(
   --no-first-run
   --disable-session-crashed-bubble
   --disable-translate
+  --autoplay-policy=no-user-gesture-required
 )
 
 read_cfg() {
@@ -54,6 +55,26 @@ case "$ACTIVITY" in
       --proxy-server="http://127.0.0.1:8888" \
       "$mblock_url"
     ;;
+  apple_music)
+    music_url="$(read_cfg apple_music_url 'https://music.apple.com/us/browse')"
+    exec "$CHROMIUM" \
+      "${COMMON_FLAGS[@]}" \
+      --new-window \
+      --app="$music_url" \
+      --user-data-dir="$PROFILE_ROOT/apple_music" \
+      --proxy-server="http://127.0.0.1:8888" \
+      "$music_url"
+    ;;
+  typesy)
+    typesy_url="$(read_cfg typesy_url 'https://www.typesy.com/type/')"
+    exec "$CHROMIUM" \
+      "${COMMON_FLAGS[@]}" \
+      --new-window \
+      --app="$typesy_url" \
+      --user-data-dir="$PROFILE_ROOT/typesy" \
+      --proxy-server="http://127.0.0.1:8888" \
+      "$typesy_url"
+    ;;
   web)
     # General browsing while an approved session is active.
     # SafeSearch / SafeSites policies still apply via managed Chromium config.
@@ -65,7 +86,7 @@ case "$ACTIVITY" in
       "https://www.google.com/?safe=active&ssui=on"
     ;;
   *)
-    echo "Usage: $0 homework|mblock|web" >&2
+    echo "Usage: $0 homework|mblock|apple_music|typesy|web" >&2
     exit 2
     ;;
 esac

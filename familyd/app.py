@@ -127,7 +127,7 @@ def create_app(cfg: AppConfig | None = None) -> FastAPI:
     @app.post("/api/launch/{activity}")
     async def api_launch(activity: str) -> dict[str, Any]:
         """Kid UI asks the kiosk wrapper to open an activity profile."""
-        allowed = {"homework", "mblock", "web"}
+        allowed = {"homework", "mblock", "apple_music", "typesy", "web"}
         if activity not in allowed:
             raise HTTPException(status_code=400, detail="Unknown activity")
         status = policy.kid_status()
@@ -142,6 +142,8 @@ def create_app(cfg: AppConfig | None = None) -> FastAPI:
             "ok": True,
             "activity": activity,
             "mblock_url": cfg.mblock_url,
+            "apple_music_url": cfg.apple_music_url,
+            "typesy_url": cfg.typesy_url,
             "homework_start_url": cfg.homework_start_url,
             "homework_urls": cfg.homework_url_allowlist,
         }

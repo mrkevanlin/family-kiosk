@@ -90,6 +90,8 @@ class PolicyService:
             "pending_request": pending[0] if pending else None,
             "session_durations": self.cfg.session_durations,
             "mblock_url": self.cfg.mblock_url,
+            "apple_music_url": self.cfg.apple_music_url,
+            "typesy_url": self.cfg.typesy_url,
             "homework_start_url": self.cfg.homework_start_url,
             "homework_url_allowlist": self.cfg.homework_url_allowlist,
             "activities": self._activities(hours.open, session.active),
@@ -101,8 +103,8 @@ class PolicyService:
         tiles = [
             {
                 "id": "homework",
-                "title": "Homework",
-                "subtitle": "Google with SafeSearch on",
+                "title": "School",
+                "subtitle": "Google Tools",
                 "action": "launch_homework",
                 "enabled": True,
             },
@@ -111,6 +113,20 @@ class PolicyService:
                 "title": "mBlock",
                 "subtitle": "Coding & robots",
                 "action": "launch_mblock",
+                "enabled": True,
+            },
+            {
+                "id": "apple_music",
+                "title": "Apple Music",
+                "subtitle": "Listen & playlists",
+                "action": "launch_apple_music",
+                "enabled": True,
+            },
+            {
+                "id": "typesy",
+                "title": "Typesy",
+                "subtitle": "Typing practice",
+                "action": "launch_typesy",
                 "enabled": True,
             },
             {

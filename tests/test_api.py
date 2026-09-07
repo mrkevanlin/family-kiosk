@@ -54,6 +54,7 @@ def test_full_approval_api(tmp_path):
 
     status = client.get("/api/status").json()
     assert status["computer_open"] is True
+    assert any(a["id"] == "typesy" for a in status["activities"])
 
     created = client.post("/api/requests", json={"minutes": 15, "note": "test"}).json()
     assert created["status"] == "pending"

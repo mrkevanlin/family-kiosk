@@ -4,7 +4,7 @@ A simple Ubuntu kiosk for a family mini PC (GMKtec G10 and similar). Your child 
 
 ## What it does
 
-- **Kid login** opens a GNOME Kiosk session with one screen: Homework (Google with SafeSearch locked), mBlock, Ask for internet, and Web (only while internet is approved).
+- **Kid login** opens a GNOME Kiosk session with one screen: School (Google Tools with SafeSearch locked), mBlock, Apple Music, Typesy, Ask for internet, and Web (only while internet is approved).
 - **Computer hours** (default Eastern Time): weekdays 4–8 PM, weekends 9 AM–8 PM. Outside those hours the picker shows a closed state.
 - **Internet** is off by default. Google / GSuite and mBlock domains stay reachable. Everything else needs a timed approval (15 / 30 / 60 minutes).
 - **Explicit content**: Chromium policies force Google SafeSearch (including Images), YouTube Restricted Mode, and SafeSites filtering. See [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md).
@@ -114,7 +114,8 @@ Edit `/etc/family-kiosk/config.yaml` (or `config/config.yaml` in dev):
 - `parent_pin` — dashboard + kiosk exit
 - `hours` — per-day start/end
 - `homework_url_allowlist` / `homework_start_url` — Google / school entry points
-- `always_allow_domains` — proxy allowlist (Google + mBlock hosts)
+- `always_allow_domains` — proxy allowlist (Google + mBlock + Apple Music + Typesy hosts)
+- `mblock_url` / `apple_music_url` / `typesy_url` — activity start URLs
 - `session_durations` — `[15, 30, 60]`
 - `dry_run_network: true` on Mac; `false` on the G10
 
