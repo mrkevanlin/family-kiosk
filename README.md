@@ -64,9 +64,10 @@ sudo nano /etc/family-kiosk/config.yaml   # change parent_pin, hours, homework s
 sudo systemctl restart familyd
 ```
 
-4. Log out and log in as the **child** user you selected — the kiosk picker should fill the screen.
-5. On your iPhone (same Wi‑Fi), bookmark **http://family-pc.local:8787/parent**.
-6. Verify SafeSearch policies: on the kid session open `chrome://policy`, and set up [Family Link](https://families.google.com/familylink) (or school admin controls) for his Google account — details in [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md).
+4. Log out completely. On the login screen select the **child** user, open the **gear** icon (bottom-right), choose **GNOME Kiosk Script** (Wayland), then sign in.
+5. If you still get a normal desktop: `sudo bash deploy/fix-kiosk.sh` then log out and try the gear menu again.
+6. On your iPhone (same Wi‑Fi), bookmark **http://family-pc.local:8787/parent**.
+7. Verify SafeSearch policies: on the kid session open `chrome://policy`, and set up [Family Link](https://families.google.com/familylink) (or school admin controls) for his Google account — details in [deploy/GOOGLE-SAFE.md](deploy/GOOGLE-SAFE.md).
 
 ### mBlock (Linux)
 
